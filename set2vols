@@ -1,0 +1,14 @@
+#!/bin/sh
+##
+##
+##
+if [ -z "$1" ] ; then
+  echo "Usage: $0 volset [ which ]"
+  exit 1
+fi
+
+[ -z "$2" ] && col="2-" || col=$(($2+1))
+
+. $(dirname $0)/.config
+
+grep "^$1 " $VOLSETS | cut -d " " -f $col

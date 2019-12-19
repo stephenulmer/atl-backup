@@ -1,0 +1,16 @@
+#!/bin/sh
+##
+##
+##
+if [ -z "$1" ] ; then
+  echo "Usage: $0 device"
+  exit 1
+fi
+
+. $(dirname $0)/.config
+
+slot=$(dev2slot $1)
+vol2slot | awk "\$2==$slot { print \$1 }"
+
+## This doesn't have media generation tag on the end of the VOLSER!
+#$ITDT -f $1 status | grep "Volume ID" | tr -s '.' ' ' | cut -d " " -f 3

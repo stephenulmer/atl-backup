@@ -1,0 +1,24 @@
+#!/bin/sh
+##
+##
+##
+if [ -z "$1" ] ; then
+  echo "Usage: $0 volset"
+  exit 1
+fi
+
+. $(dirname $0)/.config
+
+nextvol=$(set2vols $1 $TAR_VOLUME)
+
+if [ -z "$nextvol" ] ; then
+  echo "No volume $TAR_VOLUME in volset $1"
+  exit 1
+fi
+
+if [ -z "$TAR_ARCHIVE" -o -z "$TAR_VOLUME" ] ; then
+  echo "Must be run from GNU tar!"
+  exit 1
+fi
+
+volmount $nextvol $TAR_ARCHIVE

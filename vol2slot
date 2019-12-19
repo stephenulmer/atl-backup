@@ -1,0 +1,20 @@
+#!/bin/sh
+##
+##
+##
+
+if [ "$1" == "-h" ] ; then
+  echo "$(basename $0) [ -h | volid ]"
+  exit 0
+fi
+
+[ ! -z $1 ] && volargs="-v $1"
+
+. $(dirname $0)/.config
+
+$ITDT -f $LIBDEV inventory $volargs \
+	| grep -p "Media Present.*Yes" \
+	| awk '/Volume Tag/ { print $4 } /^Drive Address/ { print $3 } /^(Import\/Export Station Address|Slot)/ { print $4 }' \
+	| paste -d " " - - \
+	| ( [ -z "$volargs" ] && awk '{ print $2 " " $1 }' || awk '{ print $1 }' )
+

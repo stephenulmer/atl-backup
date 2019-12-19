@@ -1,0 +1,30 @@
+#!/bin/sh
+##
+##
+
+if [ -z "$1" -o -z "$2" ] ; then
+  echo "Usage: $0 volid device"
+  exit 1
+fi
+
+. $(dirname $0)/.config
+
+volslot=$(vol2slot $1)
+devslot=$(dev2slot $2)
+volindev=$(dev2vol $2)
+
+if [ -z "$volslot" ] ; then
+    echo "Volume $1 is not in the library."
+    exit 1
+fi
+
+## A tape other than the one we asked for is in the
+## drive. Put it away.
+[ -n "$volindev" -a "$volindev" != "$1" ] && volumount $volindev
+
+echo "Found $1 => \c"
+if [ "$volslot" -eq "$devslot" ] ; then
+    echo "Already in the drive."
+else
+    $ITDT -f $LIBDEV move $volslot $devslot
+fi

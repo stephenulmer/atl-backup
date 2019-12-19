@@ -1,0 +1,13 @@
+#!/bin/sh
+##
+##
+##
+if [ -z "$1" ] ; then
+  echo "Usage: $0 device"
+  exit 1
+fi
+
+. $(dirname $0)/.config
+
+sn=$($ITDT -f $1 path | grep "Serial Number" | cut -d " " -f 5)
+$ITDT -f $LIBDEV devid | grep -p "$sn" | grep "Drive Address" | cut -d " " -f 3

@@ -1,0 +1,28 @@
+#!/bin/sh
+##
+##
+
+VOL=$1
+if [ -z "$1" ] ; then
+  echo "Usage: $0 <volid>"
+  exit 1
+fi
+
+. $(dirname $0)/.config
+
+$ITDT -f $LIBDEV inventory \
+	| grep -p "^Drive Address" \
+	| grep -p "Media Present.*Yes" \
+	| grep -p "Volume Tag.*$VOL" \
+	| awk '/Volume Tag/ { print $4 } /^Drive Address/ { print $3 } /Source Element Address [.]+/ { print $5 }' \
+	| paste -d " " - - - \
+	| read drive slot tape
+
+if [ -z $tape ] ; then
+  echo "Volume $1 not mounted."
+  exit 1
+fi
+
+echo "Found $tape => \c"
+
+$ITDT -f $LIBDEV move $drive $slot
