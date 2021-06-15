@@ -1,0 +1,53 @@
+#!/bin/sh
+##
+##
+##
+
+. $(dirname $0)/.config
+
+if [ -z "$2" ] ; then
+  echo "Usage: $0 device volset target_dir [ member ... ]"
+  exit 1
+fi
+
+dev=$1; shift
+set=$1; shift
+target=$1; shift
+members=$@
+
+## FIXME: fix set2vols and check return code here
+grep "^$set" $VOLSETS 2>&1 > /dev/null
+if [ ! $? -eq 0 ] ; then
+  echo "Volset $set is not defined in $VOLSETS."
+  exit 1
+fi
+
+[ -z "$target" ] && target="."
+echo "Will restore into $target"
+
+## load first volume
+volmount $(set2vols $set 1) $dev
+
+## invoke tar
+$GNUTAR --extract \
+	--verbose \
+	--file $dev \
+	--totals \
+	--totals=SIGUSR1 \
+	--multi-volume \
+	--new-volume-script="set2tar_vol $set" \
+        --directory=$target \
+        $members
+
+## Check exit code and put away last tape
+if [ $? -ne 0 ] ; then
+  echo "*********************************************************"
+  echo "*****     GNU tar did not exit cleanly!!!"
+  echo "*****     Examine the output above for any errors..."
+  echo "*********************************************************"
+  exit 1
+else
+  volumount $(dev2vol $dev)
+fi
+
+echo "Backup completed."
